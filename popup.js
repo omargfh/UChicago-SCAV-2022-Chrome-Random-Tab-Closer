@@ -11,6 +11,12 @@ const fn = () => {
     });
 }
 
+const schedule_fn = (time) => {
+    setTimeout(() => {
+        fn();
+    }, time);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     var link = document.getElementById("closeRandomTabBtn");
     link.addEventListener('click', () => {

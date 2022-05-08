@@ -37,22 +37,28 @@ async function retryOnTabUpdate(tabId, info, tab) {
     keepAlive();
   }
 }
-chrome.windows.onCreated.addListener(() => {
 
-    let time = (Math.random() * 5) * 60000;
-    const fn = () => {
-        chrome.tabs.query({
-            currentWindow: true
-        }, function (tabs) {
-            let len = tabs.length;
-            if (tabs.length !== 0) {
-                let random_tab = tabs[Math.floor(Math.random()*len)];
-                chrome.tabs.remove(random_tab.id);
-                console.log("Tab closed.");
-            }
-        });
-    }
+const fn = () => {
+  chrome.windows.getCurrent(w => {
+    chrome.tabs.query({windowId: w.id}, tabs => {
+      let len = tabs.length;
+        console.log(tabs.length);
+        let random_tab = tabs[Math.floor(Math.random()*len)];
+        chrome.tabs.remove(random_tab.id);
+        console.log("Tab closed.");
+      });
+    });
+    scheduleClose();
+    keepAliveForced();
+}
 
-    setInterval(fn, time);
+const scheduleClose = () => {
+    let time = (Math.random() * 2) * 60000;
+    console.log(`Time until random tab closes is ${(time / 60000).toFixed(2)} minutes.`);
+    setTimeout(() => {
+      fn();
+    }, time);
+}
 
-});
+chrome.runtime.onInstalled.addListener(scheduleClose);
+chrome.windows.onCreated.addListener(scheduleClose);
